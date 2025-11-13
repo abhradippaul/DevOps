@@ -3,6 +3,7 @@ dotenv.config();
 
 import express, { urlencoded } from "express";
 import cors from "cors";
+import { jokes } from "./joke.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -20,6 +21,10 @@ app.use(
 
 app.get("/", async (req, res) => {
   res.status(200).json({ msg: "Server is running" });
+});
+
+app.get("/api/jokes", async (req, res) => {
+  res.status(200).json({ msg: "Fetched jokes successfully", data: jokes });
 });
 
 app.listen(PORT, () => {

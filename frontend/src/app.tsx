@@ -23,8 +23,7 @@ export function App() {
         return res.json();
       })
       .then((data) => {
-        setData(data);
-
+        console.log(data);
         setIsBackendHealthy(true);
       })
       .catch((err) => {
@@ -40,14 +39,15 @@ export function App() {
     setError(null);
     setData([]);
 
-    fetch(`${BACKEND_URL}/api/items`)
+    fetch(`${BACKEND_URL}/api/jokes`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch data");
         }
         return res.json();
       })
-      .then((data) => {
+      .then(({ msg, data }) => {
+        console.log(msg);
         setData(data);
       })
       .catch((err) => {
@@ -82,7 +82,7 @@ export function App() {
           <p className="text-red-500 text-center mb-3">Error: {error}</p>
         )}
 
-        {!error && data.length > 0 && (
+        {!error && Boolean(data.length) && (
           <ul className="space-y-2">
             {data.map((item) => (
               <li
@@ -95,7 +95,7 @@ export function App() {
           </ul>
         )}
 
-        {!loading && !error && data.length === 0 && (
+        {!loading && !error && !Boolean(data.length) && (
           <p className="text-gray-500 text-center mt-4">
             No data fetched yet. Click the button above 👆
           </p>
