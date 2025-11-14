@@ -39,7 +39,7 @@ export function App() {
     setError(null);
     setData([]);
 
-    fetch(`${BACKEND_URL}/api/jokes`)
+    fetch(`${BACKEND_URL}/jokes`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch data");

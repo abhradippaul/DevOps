@@ -19,11 +19,12 @@ app.use(
   })
 );
 
-app.get("/", async (req, res) => {
+app.get("/api", (req, res) => {
   res.status(200).json({ msg: "Server is running" });
 });
 
-app.get("/api/jokes", async (req, res) => {
+app.get("/api/jokes", (req, res) => {
+  console.log("test");
   res.status(200).json({ msg: "Fetched jokes successfully", data: jokes });
 });
 

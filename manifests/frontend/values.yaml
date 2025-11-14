@@ -5,6 +5,9 @@ image:
   pullPolicy: IfNotPresent
   # tag: v1
 
+secret:
+  secret-file: |
+    BACKEND_URL="http://localhost:8000"
 
 serviceAccount:
   create: false

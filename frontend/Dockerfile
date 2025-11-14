@@ -3,7 +3,7 @@ FROM node:current-alpine3.22 AS build
 WORKDIR /app
 
 COPY *.json ./
-RUN npm install
+RUN npm ci
 
 COPY . ./
 RUN npm run build
