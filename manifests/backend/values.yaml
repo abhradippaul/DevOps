@@ -1,13 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: nginx
+  repository: abhradippaul/nodejs-backend-devops
   pullPolicy: IfNotPresent
-  # tag: v1
-
-secret:
-  secret-file: |
-    FRONTEND_URL="http://localhost:5173"
 
 serviceAccount:
   create: false
@@ -25,34 +20,34 @@ httpRoute:
   
 resources: 
   requests:
-    cpu: 10m
-    memory: 20Mi
+    cpu: 40m
+    memory: 80Mi
   limits:
-    cpu: 20m
-    memory: 40Mi
+    cpu: 80m
+    memory: 160Mi
 
 livenessProbe:
   httpGet:
-    path: /
+    path: /healthy
     port: http
 readinessProbe:
   httpGet:
-    path: /
+    path: /healthy
     port: http
 
 autoscaling:
   enabled: false
 
-volumes: 
-- name: backend-secret
-  secret:
-    secretName: backend-secret
-    optional: false
+# volumes: 
+# - name: backend-secret
+#   secret:
+#     secretName: backend-secret
+#     optional: false
 
-volumeMounts:
-- name: backend-secret
-  mountPath: "/app/.env"
-  readOnly: true
+# volumeMounts:
+# - name: backend-secret
+#   mountPath: "/app/.env"
+#   readOnly: true
 
 autoscaling:
   enabled: true

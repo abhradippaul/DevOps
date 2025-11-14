@@ -3,12 +3,17 @@ name: Node CI/CD Pipeline
 on:
   push:
     branches: ["main"]
+    paths: ["frontend/**", "backend/**"]
+  pull_requests:
+    branches: ["main"]
+    paths: ["frontend/**", "backend/**"]
 
 jobs:
-  build:
-    runs-on: ubuntu:latest
+  check-build-push:
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:

@@ -20,8 +20,6 @@ COPY --from=builder /app/dist ./dist
 
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/.env ./
-
 EXPOSE $PORT
 
 CMD [ "npm" , "start" ]

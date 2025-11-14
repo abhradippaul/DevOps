@@ -1,13 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: nginx
+  repository: abhradippaul/nodejs-frontend-devops
   pullPolicy: IfNotPresent
-  # tag: v1
-
-secret:
-  secret-file: |
-    BACKEND_URL="http://localhost:8000"
 
 serviceAccount:
   create: false
@@ -25,11 +20,11 @@ httpRoute:
   
 resources: 
   requests:
-    cpu: 10m
-    memory: 20Mi
-  limits:
     cpu: 20m
     memory: 40Mi
+  limits:
+    cpu: 40m
+    memory: 80Mi
 
 livenessProbe:
   httpGet:
@@ -43,16 +38,16 @@ readinessProbe:
 autoscaling:
   enabled: false
 
-volumes: 
-- name: frontend-secret
-  secret:
-    secretName: frontend-secret
-    optional: false
+# volumes: 
+# - name: frontend-secret
+#   secret:
+#     secretName: frontend-secret
+#     optional: false
 
-volumeMounts:
-- name: frontend-secret
-  mountPath: "/app/.env"
-  readOnly: true
+# volumeMounts:
+# - name: frontend-secret
+#   mountPath: "/app/.env"
+#   readOnly: true
 
 autoscaling:
   enabled: true

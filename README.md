@@ -23,3 +23,11 @@ kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-pa
 # Check the admin-user
 kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-user}" | base64 -d
 ```
+
+```bash
+helm template frontend-app ./manifests/frontend > manifests/kustomize/base/frontend-resources.yaml
+
+helm template backend-app ./manifests/backend > manifests/kustomize/base/backend-resources.yaml
+
+kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl apply -f -
+```
