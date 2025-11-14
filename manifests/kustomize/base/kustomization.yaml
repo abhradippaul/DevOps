@@ -1,14 +1,21 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-nameSuffix: -v1
-
 resources:
   - backend-resources.yaml
   - frontend-resources.yaml
 
-images:
-  - name: abhradippaul/nodejs-frontend-devops
-    newTag: v1
-  - name: abhradippaul/nodejs-backend-devops
-    newTag: v1
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - name: frontend-secret
+    literals:
+      - BACKEND_URL="http://backend-app:8000"
+  - name: backend-secret
+    literals:
+      - FRONTEND_URL="http://frontend-app"
+
+patches:
+  - path: patch-frontend.yaml
+  - path: patch-backend.yaml

@@ -20,8 +20,8 @@ httpRoute:
   
 resources: 
   requests:
-    cpu: 20m
-    memory: 40Mi
+    cpu: 40m
+    memory: 80Mi
   limits:
     cpu: 40m
     memory: 80Mi
@@ -30,24 +30,45 @@ livenessProbe:
   httpGet:
     path: /
     port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
 readinessProbe:
   httpGet:
     path: /
     port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
 
-autoscaling:
-  enabled: false
+configMap:
+  file: |
+      server {
+        listen 80;
+        server_name localhost;
 
-# volumes: 
-# - name: frontend-secret
-#   secret:
-#     secretName: frontend-secret
-#     optional: false
+        location /api/ {
+            proxy_pass ${BACKEND_URL};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
 
-# volumeMounts:
-# - name: frontend-secret
-#   mountPath: "/app/.env"
-#   readOnly: true
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+        }
+      }
+
+volumes: 
+- name: nginx-config
+  configMap:
+    name: nginx-config
+    optional: false
+
+volumeMounts:
+- name: nginx-config
+  mountPath: /etc/nginx/nginx.conf.template
+  subPath: nginx.conf.template
 
 autoscaling:
   enabled: true

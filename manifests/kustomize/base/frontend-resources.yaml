@@ -1,4 +1,29 @@
 ---
+# Source: frontend/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf.template: |
+      server {
+        listen 80;
+        server_name localhost;
+
+        location /api/ {
+            proxy_pass ${BACKEND_URL};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+        }
+      }
+---
 # Source: frontend/templates/service.yaml
 apiVersion: v1
 kind: Service
@@ -16,6 +41,7 @@ spec:
     - port: 80
       targetPort: http
       protocol: TCP
+      nodePort: 32001
       name: http
   selector:
     app.kubernetes.io/name: frontend
@@ -70,6 +96,15 @@ spec:
             requests:
               cpu: 20m
               memory: 40Mi
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf.template
+              name: nginx-config
+              subPath: nginx.conf.template
+      volumes:
+        - configMap:
+            name: nginx-config
+            optional: false
+          name: nginx-config
 ---
 # Source: frontend/templates/hpa.yaml
 apiVersion: autoscaling/v2

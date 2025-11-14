@@ -2,17 +2,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 namespace: stage
-namePrefix: stage-
-
-secretGenerator:
-  - name: frontend-secret
-    literals:
-      - BACKEND_URL="http://stage-backend-app:8000"
-
-secretGenerator:
-  - name: backend-secret
-    literals:
-      - FRONTEND_URL="http://stage-frontend-app"
 
 resources:
   - ../../base
+
+images:
+  - name: abhradippaul/nodejs-frontend-devops
+    newTag: v1
+  - name: abhradippaul/nodejs-backend-devops
+    newTag: v1

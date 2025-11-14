@@ -6,16 +6,16 @@ interface Item {
   name: string;
 }
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export function App() {
   const [isBackendHealthy, setIsBackendHealthy] = useState(false);
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
-    fetch(BACKEND_URL)
+    // fetch(BACKEND_URL)
+    fetch("/api/")
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch data");
@@ -39,7 +39,8 @@ export function App() {
     setError(null);
     setData([]);
 
-    fetch(`${BACKEND_URL}/jokes`)
+    // fetch(`${BACKEND_URL}/jokes`)
+    fetch(`/api/jokes`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch data");

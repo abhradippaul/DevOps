@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-app
+  name: backend-app
 spec:
   template:
     spec:
       containers:
-        - name: frontend
+        - name: backend
           envFrom:
             - secretRef:
-                name: dev-frontend-secret
+                name: backend-secret

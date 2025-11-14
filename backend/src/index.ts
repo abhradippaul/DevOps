@@ -14,10 +14,15 @@ app.use(urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
-    credentials: true,
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.get("/", (req, res) => {
+  res.status(200).json({ msg: "Welcome to backend" });
+});
 
 app.get("/api", (req, res) => {
   res.status(200).json({ msg: "Server is running" });
