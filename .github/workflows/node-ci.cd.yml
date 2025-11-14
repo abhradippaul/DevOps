@@ -3,10 +3,10 @@ name: Node CI/CD Pipeline
 on:
   push:
     branches: ["main"]
-    paths: ["frontend/**", "backend/**"]
+    paths: ["frontend/**", "backend/**", ".github/**"]
   pull_request:
     branches: ["main"]
-    paths: ["frontend/**", "backend/**"]
+    paths: ["frontend/**", "backend/**", ".github/**"]
 
 jobs:
   check-build-push:
