@@ -76,7 +76,7 @@ jobs:
         run: |
           OLD_DEV=$(grep -oE "newTag: [0-9]+\.[0-9]+\.[0-9]+" manifests/kustomize/overlays/dev/kustomization.yaml | head -1 | awk '{print $2}')
           echo "old=$OLD_DEV" >> $GITHUB_OUTPUT
-       - name: Update image tag for staging
+      - name: Update image tag for staging
         run: |
           sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.olddev.outputs.old }}/g" manifests/kustomize/overlays/stage/kustomization.yaml
       - name: Update image tag for dev
@@ -87,7 +87,11 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
         run: |
+
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Actions Bot"
+
           git add manifests/kustomize/overlays
           git commit -m "Update image for gitops version:${{ steps.version.outputs.version }}"
-          
+
           git push
