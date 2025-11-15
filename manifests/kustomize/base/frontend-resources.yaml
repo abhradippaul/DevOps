@@ -6,23 +6,23 @@ metadata:
   name: nginx-config
 data:
   nginx.conf.template: |
-      server {
-        listen 80;
-        server_name localhost;
-
-        location /api/ {
-            proxy_pass ${BACKEND_URL};
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location / {
-            root /usr/share/nginx/html;
-            index index.html index.htm;
-            try_files $uri $uri/ /index.html;
-        }
+    server {
+      listen 80;
+      server_name localhost;
+    
+      location /api/ {
+          proxy_pass ${BACKEND_URL};
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-Proto $scheme;
       }
+    
+      location / {
+          root /usr/share/nginx/html;
+          index index.html index.htm;
+          try_files $uri $uri/ /index.html;
+      }
+    }
 ---
 # Source: frontend/templates/service.yaml
 apiVersion: v1
@@ -36,12 +36,11 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 80
       targetPort: http
       protocol: TCP
-      nodePort: 32001
       name: http
   selector:
     app.kubernetes.io/name: frontend
@@ -83,19 +82,23 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
+              initialDelaySeconds: 5
               path: /
+              periodSeconds: 5
               port: http
           readinessProbe:
             httpGet:
+              initialDelaySeconds: 5
               path: /
+              periodSeconds: 5
               port: http
           resources:
             limits:
               cpu: 40m
               memory: 80Mi
             requests:
-              cpu: 20m
-              memory: 40Mi
+              cpu: 40m
+              memory: 80Mi
           volumeMounts:
             - mountPath: /etc/nginx/nginx.conf.template
               name: nginx-config

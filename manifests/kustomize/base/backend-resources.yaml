@@ -11,12 +11,11 @@ metadata:
     app.kubernetes.io/version: "1.16.0"
     app.kubernetes.io/managed-by: Helm
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 8000
       targetPort: http
       protocol: TCP
-      nodePort: 32000
       name: http
   selector:
     app.kubernetes.io/name: backend
@@ -58,19 +57,23 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /healthy
+              initialDelaySeconds: 5
+              path: /
+              periodSeconds: 5
               port: http
           readinessProbe:
             httpGet:
-              path: /healthy
+              initialDelaySeconds: 5
+              path: /
+              periodSeconds: 5
               port: http
           resources:
             limits:
-              cpu: 40m
-              memory: 80Mi
+              cpu: 50m
+              memory: 150Mi
             requests:
-              cpu: 20m
-              memory: 40Mi
+              cpu: 50m
+              memory: 150Mi
 ---
 # Source: backend/templates/hpa.yaml
 apiVersion: autoscaling/v2
