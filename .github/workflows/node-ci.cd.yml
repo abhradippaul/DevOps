@@ -79,11 +79,13 @@ jobs:
       - name: Update image tag for staging
         run: |
           sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.olddev.outputs.old }}/g" manifests/kustomize/overlays/stage/kustomization.yaml
+      - name: Git Version
+        run: |
+          git --version
       - name: Update image tag for dev
         run: |
           sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.version.outputs.version }}/g" manifests/kustomize/overlays/dev/kustomization.yaml
       - name: Update GitOps repository
-        shell: bash
         env:
           GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
         run: |
