@@ -71,14 +71,23 @@ jobs:
           tags: |
             abhradippaul/nodejs-backend-devops:${{ steps.version.outputs.version }}
             abhradippaul/nodejs-backend-devops:latest
-      # - name: Extract old dev version for staging
-      #   id: olddev
-      #   run: |
-      #     OLD_DEV=$(grep -oE "newTag: [0-9]+\.[0-9]+\.[0-9]+" manifests/kustomize/overlays/dev/kustomization.yaml | head -1 | awk '{print $2}')
-      #     echo "old=$OLD_DEV" >> $GITHUB_OUTPUT
-      #  - name: Update image tag for staging
-      #   run: |
-      #     sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.version.outputs.version }}/g" manifests/kustomize/overlays/dev/kustomization.yaml
-      # - name: Update image tag for dev
-      #   run: |
-      #     sed -i "s/\(newTag:.*:\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${{ steps.version.outputs.version }}/" manifests/kustomize/overlays/dev/kustomization.yaml
+      - name: Extract old dev version for staging
+        id: olddev
+        run: |
+          OLD_DEV=$(grep -oE "newTag: [0-9]+\.[0-9]+\.[0-9]+" manifests/kustomize/overlays/dev/kustomization.yaml | head -1 | awk '{print $2}')
+          echo "old=$OLD_DEV" >> $GITHUB_OUTPUT
+       - name: Update image tag for staging
+        run: |
+          sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.olddev.outputs.old }}/g" manifests/kustomize/overlays/stage/kustomization.yaml
+      - name: Update image tag for dev
+        run: |
+          sed -i "s/\(newTag:.*:\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${{ steps.version.outputs.version }}/" manifests/kustomize/overlays/dev/kustomization.yaml
+      - name: Update GitOps repository
+        shell: bash
+        env:
+          GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
+        run: |
+          git add manifests/kustomize/overlays
+          git commit -m "Update image for gitops version:${{ steps.version.outputs.version }}"
+          
+          git push

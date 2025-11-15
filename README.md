@@ -26,10 +26,10 @@ This Express backend enables CORS, loads environment variables, and serves JSON 
 
 Routes:
 
-- "/" -> Server running status
-- "/api" -> Main server response
-- "/healthy" -> For kubernetes probes checking
-- "/api/jokes" -> Return list of jokes
+- / -> Server running status
+- /api -> Main server response
+- /healthy -> For kubernetes probes checking
+- /api/jokes -> Return list of jokes
 
 Components:
 
@@ -53,6 +53,8 @@ kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl replace -f -
 
 Argo CD is a GitOps-based deployment tool for Kubernetes that continuously syncs your cluster with your Git repository and automates application delivery.
 
+### ArgoCD Setup
+
 ```bash
 # Create namespace argo to create argocd resources
 kubectl create ns argo
@@ -71,6 +73,23 @@ kubectl get all -n argo
 
 # Get secret to access the dashboard
 kubectl get secret -n argo argocd-initial-admin-secret -ojsonpath={.data.password} | base64 -d
+```
+
+Default username for argocd is admin
+
+### Application Setup
+
+We create three ArgoCD Applications Dev, Stage, and Prod environments. ArgoCD continuously monitors the repo and automatically updates the Kubernetes resources whenever it detects changes — ensuring all environments stay in sync with Git.
+
+```bash
+# Create argocd application for dev environment
+kubectl apply -f argocd-applications/argo-dev-env.yaml
+
+# Create argocd application for stage environment
+kubectl apply -f argocd-applications/argo-stage-env.yaml
+
+# Create argocd application for prod environment
+kubectl apply -f argocd-applications/argo-prod-env.yaml
 ```
 
 ## Monitoring
