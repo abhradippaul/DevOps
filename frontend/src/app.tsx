@@ -14,7 +14,6 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    // fetch(BACKEND_URL)
     fetch("/api/")
       .then((res) => {
         if (!res.ok) {
@@ -39,7 +38,6 @@ export function App() {
     setError(null);
     setData([]);
 
-    // fetch(`${BACKEND_URL}/jokes`)
     fetch(`/api/jokes`)
       .then((res) => {
         if (!res.ok) {
