@@ -50,7 +50,7 @@ spec:
       containers:
         - name: backend
           image: "abhradippaul/nodejs-backend-devops:1.16.0"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8000

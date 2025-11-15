@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: abhradippaul/nodejs-frontend-devops
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 serviceAccount:
   create: false
