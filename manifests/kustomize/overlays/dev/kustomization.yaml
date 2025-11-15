@@ -8,6 +8,6 @@ resources:
 
 images:
   - name: abhradippaul/nodejs-frontend-devops
-    newTag: 0.0.1
+    newTag: 0.0.2
   - name: abhradippaul/nodejs-backend-devops
-    newTag: 0.0.1
+    newTag: 0.0.2
