@@ -39,6 +39,16 @@ Components:
 - Eslint
 - Dockerfile
 
+# Helm and Kustomize
+
+```bash
+helm template frontend-app ./manifests/frontend > manifests/kustomize/base/frontend-resources.yaml
+
+helm template backend-app ./manifests/backend > manifests/kustomize/base/backend-resources.yaml
+
+kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl replace -f -
+```
+
 ## ArgoCD
 
 Argo CD is a GitOps-based deployment tool for Kubernetes that continuously syncs your cluster with your Git repository and automates application delivery.
@@ -88,12 +98,4 @@ kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-pa
 
 # Get admin-user to access the dashboard
 kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-user}" | base64 -d
-```
-
-```bash
-helm template frontend-app ./manifests/frontend > manifests/kustomize/base/frontend-resources.yaml
-
-helm template backend-app ./manifests/backend > manifests/kustomize/base/backend-resources.yaml
-
-kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl replace -f -
 ```
