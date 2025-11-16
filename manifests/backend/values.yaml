@@ -13,27 +13,7 @@ service:
   
 ingress:
   enabled: true
-  className: "alb"
-
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-    alb.ingress.kubernetes.io/group.name: multi-app-group
-
-  hosts:
-    ingressClassName: alb
-    rules:
-    - host: frontend.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-          backend:
-              service:
-                name: frontend-app
-                port:
-                  number: 80
-
+  
 httpRoute:
   enabled: false
   
