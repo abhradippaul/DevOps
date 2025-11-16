@@ -199,7 +199,7 @@ We need to deploy metrics-server in kubernetes to monitor pod metrics and scale 
 ```bash
 # Install metrics-server (release name: metrics-server)
 helm upgrade --install metrics-server metrics-server/metrics-server \
---create-namespace metrics-server -n metrics-server -f helm-values/metrics-server-values.yaml
+--create-namespace -n metrics-server -f helm-values/metrics-server-values.yaml
 ```
 
 ## Monitoring
@@ -213,7 +213,7 @@ FOLDERS:
 ```bash
 # Install kube-prometheus-stack (release name: prometheus)
 helm upgrade --install prometheus prom/kube-prometheus-stack \
---create-namespace monitoring -n monitoring -f helm-values/prom-values.yaml
+--create-namespace -n monitoring -f helm-values/prom-values.yaml
 
 # Check monitoring resources
 helm list -n monitoring
@@ -241,7 +241,7 @@ Argo CD is a GitOps-based deployment tool for Kubernetes that continuously syncs
 ```bash
 # Install argo-cd (release name: argocd)
 helm upgrade --install argocd argo/argo-cd \
---create-namespace argo -n argo -f helm-values/argocd-values.yaml
+--create-namespace -n argo -f helm-values/argocd-values.yaml
 
 # Check argocd resources
 helm list -n argo
