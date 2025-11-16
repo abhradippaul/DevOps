@@ -46,7 +46,7 @@ resource "aws_subnet" "eks_subnet_private" {
 
 # resource "aws_eip" "nat_elastic_ip" {
 #   tags = {
-#     Name = "nat_elastic_ip"
+#     "Name" = "nat_elastic_ip"
 #   }
 # }
 
@@ -55,7 +55,7 @@ resource "aws_subnet" "eks_subnet_private" {
 #   allocation_id = aws_eip.nat_elastic_ip.id
 #   subnet_id     = aws_subnet.demo-subnet-public[0].id
 #   tags = {
-#     Name = "nat_private_ec2"
+#     "Name" = "nat_private_ec2"
 #   }
 # }
 
@@ -73,7 +73,7 @@ resource "aws_route_table" "eks_private_route_table" {
   #   }
 
   tags = {
-    Name = "eks_private_route_table"
+    "Name" = "eks_private_route_table"
   }
 }
 
@@ -92,7 +92,7 @@ resource "aws_route_table" "eks_public_route_table" {
   }
 
   tags = {
-    Name = "eks_public_route_table"
+    "Name" = "eks_public_route_table"
   }
 }
 
@@ -129,7 +129,7 @@ resource "aws_network_acl" "eks_network_acl_public" {
   }
 
   tags = {
-    Name = "eks_network_acl_public"
+    "Name" = "eks_network_acl_public"
   }
 }
 resource "aws_network_acl" "eks_network_acl_private" {
@@ -145,16 +145,26 @@ resource "aws_network_acl" "eks_network_acl_private" {
   }
 
   ingress {
-    protocol   = -1
     rule_no    = 100
+    protocol   = -1 # all protocols
     action     = "allow"
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.vpc_cidr
     from_port  = 0
     to_port    = 0
   }
 
+  # Allow return traffic from NAT gateway (ephemeral ports)
+  ingress {
+    rule_no    = 110
+    protocol   = "tcp"
+    action     = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 1024
+    to_port    = 65535
+  }
+
   tags = {
-    Name = "eks_network_acl_private"
+    "Name" = "eks_network_acl_private"
   }
 }
 

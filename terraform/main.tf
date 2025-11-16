@@ -1,7 +1,5 @@
 locals {
   region      = "ap-south-1"
-  zone1       = "ap-south-1a"
-  zone2       = "ap-south-1b"
   eks_name    = "devops-project"
   eks_version = "1.33"
 }
@@ -12,38 +10,46 @@ module "bucket" {
   bucket_name = var.bucket_name
 }
 
-# ECR resource for storing frontend image
-resource "aws_ecr_repository" "frontend_ecr" {
-  name                 = var.ecr_name[0]
-  image_tag_mutability = "MUTABLE"
-  lifecycle {
-    create_before_destroy = false
-  }
+# Create EKS iam permission needed
+module "eks_iam" {
+  source                 = "./module/eks-iam"
+  eks_cluster_name       = local.eks_name
+  eks_policy_name        = "eks_cluster_policy"
+  node_group_policy_name = "node_group_policy"
 }
+
+# ECR resource for storing frontend image
+# resource "aws_ecr_repository" "frontend_ecr" {
+#   name                 = var.ecr_name[0]
+#   image_tag_mutability = "MUTABLE"
+#   force_delete         = true
+
+#   lifecycle {
+#     create_before_destroy = false
+#   }
+# }
 
 # ECR resource for storing backend image
-resource "aws_ecr_repository" "backend_ecr" {
-  name                 = var.ecr_name[1]
-  image_tag_mutability = "MUTABLE"
-  lifecycle {
-    create_before_destroy = false
-  }
-}
+# resource "aws_ecr_repository" "backend_ecr" {
+#   name                 = var.ecr_name[1]
+#   image_tag_mutability = "MUTABLE"
+#   force_delete         = true
 
-# Create two types of users and grant them permission to pull and push images from ECR.
-module "ecr_iam" {
-  source                  = "./module/iam"
-  depends_on              = [aws_ecr_repository.backend_ecr, aws_ecr_repository.frontend_ecr]
-  ecr_iam_pull_group_name = "ecr-pull-group"
-  ecr_iam_push_group_name = "ecr-push-group"
-  ecr_pull_user_name      = "ecr-pull-user"
-  ecr_push_user_name      = "ecr-push-user"
-  ecr_arns                = [aws_ecr_repository.backend_ecr.arn, aws_ecr_repository.frontend_ecr.arn]
-  iam_pull_policy_name    = "ecr-pull-iam-policy"
-  iam_push_policy_name    = "ecr-push-iam-policy"
-}
+#   lifecycle {
+#     create_before_destroy = false
+#   }
+# }
 
-# Create vpc for eks
+# Creates push iam for github action image push
+# module "github_actions_iam" {
+#   source                  = "./module/github-actions-iam"
+#   ecr_arns                = [aws_ecr_repository.backend_ecr.arn, aws_ecr_repository.frontend_ecr.arn]
+#   ecr_iam_push_group_name = "ecr-push-group"
+#   ecr_push_user_name      = "ecr-push-user"
+#   iam_push_policy_name    = "ecr-push-iam-policy"
+# }
+
+# Create VPC for EKS
 # module "eks_vpc" {
 #   source               = "./module/vpc"
 #   az_zones             = var.az_zones
@@ -53,23 +59,15 @@ module "ecr_iam" {
 #   vpc_name             = "eks_vpc"
 # }
 
+# Create EKS Cluster
 # module "eks" {
-#   source  = "terraform-aws-modules/eks/aws"
-#   version = "~> 21.0"
-
-#   name                                     = "example"
-#   kubernetes_version                       = "1.33"
-#   endpoint_public_access                   = true
-#   enable_cluster_creator_admin_permissions = true
-#   fargate_profiles = {
-
-#   }
-#   # cluster_name    = "eks-fargate-cluster"
-#   # subnets         = ["subnet-xxxxxxxxxxxxxxxxx", "subnet-yyyyyyyyyyyyyyyyy"]
-#   # vpc_id          = "vpc-xxxxxxxxxxxxxxxxx"
-#   # cluster_version = "1.21"
-#   # fargate_profile = {
-#   #   eks_cluster_name = "eks-fargate-cluster"
-#   #   subnets          = ["subnet-xxxxxxxxxxxxxxxxx", "subnet-yyyyyyyyyyyyyyyyy"]
-#   # }
+#   source               = "./module/eks"
+#   depends_on           = [module.eks_vpc.private_subnets, module.eks_pull_iam.eks_iam_role_arn]
+#   aws_region           = local.region
+#   eks_cluster_iam_role = module.eks_pull_iam.eks_iam_role_arn
+#   eks_cluster_name     = local.eks_name
+#   eks_version          = local.eks_version
+#   private_subnets      = module.eks_vpc.private_subnets
+#   cluster_autoscaler_iam_arn = module.eks_iam.eks_cluster_autoscaler_iam_arn
+#   node_role_arn = module.eks_iam.eks_node_group_iam_role_arn
 # }

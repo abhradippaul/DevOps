@@ -10,7 +10,6 @@ serviceAccount:
 service:
   type: ClusterIP
   port: 80
-  # nodePort: 32001
 
 ingress:
   enabled: false
@@ -30,14 +29,14 @@ livenessProbe:
   httpGet:
     path: /
     port: http
-    initialDelaySeconds: 5
-    periodSeconds: 5
+  initialDelaySeconds: 5
+  periodSeconds: 5
 readinessProbe:
   httpGet:
     path: /
     port: http
-    initialDelaySeconds: 5
-    periodSeconds: 5
+  initialDelaySeconds: 5
+  periodSeconds: 5
 
 configMap:
   file: |
@@ -75,3 +74,4 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 5
   targetMemoryUtilizationPercentage: 80
+  targetCPUUtilizationPercentage: 80

@@ -1,0 +1,96 @@
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+type: Opaque
+stringData:
+  REDIS_PASSWORD: "1234"
+  REDIS_USERNAME: "abhra"
+  users.acl: |
+    user default off
+    user abhra on >1234 allcommands allkeys
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+data:
+  redis.conf: |
+    protected-mode yes
+    port 6379
+    bind 0.0.0.0
+    aclfile /usr/local/etc/redis/users.acl
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  clusterIP: None  
+  ports:
+    - port: 6379
+      name: redis
+  selector:
+    app: redis-app
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: redis-app
+  name: redis-app
+spec:
+  serviceName: redis-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-app
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: redis-app
+    spec:
+      containers:
+      - image: redis:alpine
+        name: redis-container
+        command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: 100m
+            memory: 250Mi
+          limits:
+            cpu: 100m
+            memory: 250Mi
+        envFrom:
+          - secretRef:
+              name: redis-secret
+        volumeMounts:
+          - name: redis-config
+            mountPath: /usr/local/etc/redis/redis.conf
+            subPath: redis.conf
+          - name: redis-acl
+            mountPath: /usr/local/etc/redis/users.acl
+            subPath: users.acl
+      volumes:
+        - name: redis-config
+          configMap:
+            name: redis-config
+        - name: redis-acl
+          secret:
+            secretName: redis-secret
+            items:
+              - key: users.acl
+                path: users.acl
+            
+---

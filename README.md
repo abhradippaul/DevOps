@@ -5,7 +5,7 @@
 Components:
 
 - Frontend (ReactJS, Typescript)
-- Backend (NodeJS, Typescript)
+- Backend (NodeJS, Typescript, Redis)
 
 ### Frontend
 
@@ -22,6 +22,7 @@ Components:
 - NodeJS
 - NPM
 - Typescript
+- Tailwind
 - Eslint
 - Dockerfile
 
@@ -43,6 +44,7 @@ Components:
 - Typescript
 - Eslint
 - Dockerfile
+- Redis
 
 ## Infrastructure
 
@@ -88,69 +90,6 @@ Components:
 - Resources (Deployment, Service, ConfigMap, Secrets, Namespace, HPA Autoscaling)
 - Metrics Server
 
-### EKS
-
-For use AWS EKS we need to configure kubectl
-
-Components:
-
-- EKS
-- Kubectl
-- ALB Add On
-- Terraform
-
-After depoying the EKS and ready state we need the kubeconfig for the cluster
-
-```bash
-# Run this command to get kubeconfig for eks cluster
-aws eks update-kubeconfig --name <cluster_name> --region <cluster_region>
-
-# Setup ALB Add on in EKS -> OIDC Provider -> Create Policy -> Deploy ALB controller
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update eks
-
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
---set clusterName=<your-cluster-name> \
---set serviceAccount.create=false \
---set serviceAccount.name=aws-load-balancer-controller \
---set region=<your-region> \
---set vpcId=<your-vpc-id>
-
-# Verify the ALB controller
-kubectl get deployment -n kube-system aws-load-balancer-controller
-```
-
-```bash
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: aws-load-balancer-controller
-  namespace: kube-system
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::936379345511:role/eks-alb-role
-```
-
-Create fargate profile -> Limit namespace
-Public Subnet tag -> kubernetes.io/role/elb=1
-Private Subnet tag -> kubernetes.io/role/internal-elb=1
-
-### Metrics Server
-
-We need to deploy metrics-server in kubernetes to monitor pod metrics and scale according this
-
-```bash
-# Create namespace metrics-server to create metrics-server resources
-kubectl create ns metrics-server
-
-# Add Helm repo to deploy metrics-server
-helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
-helm repo update
-
-# Install metrics-server (release name: metrics-server)
-helm upgrade --install metrics-server metrics-server/metrics-server \
--n metrics-server
-```
-
 ### Helm and Kustomize
 
 Using **Helm** we will create the charts for frontend and backend application.
@@ -168,9 +107,99 @@ helm template frontend-app ./manifests/frontend > manifests/kustomize/base/front
 helm template backend-app ./manifests/backend > manifests/kustomize/base/backend-resources.yaml
 
 # Mannual Deployment of resources in different environment
-# kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl replace -f -
-# kubectl kustomize ./manifests/kustomize/overlays/stage | kubectl replace -f -
-# kubectl kustomize ./manifests/kustomize/overlays/prod | kubectl replace -f -
+# kubectl kustomize ./manifests/kustomize/overlays/dev | kubectl apply -f -
+# kubectl kustomize ./manifests/kustomize/overlays/stage | kubectl apply -f -
+# kubectl kustomize ./manifests/kustomize/overlays/prod | kubectl apply -f -
+```
+
+### EKS
+
+For use AWS EKS we need to configure kubectl
+
+Components:
+
+- EKS
+- Kubectl
+- ALB Add On
+- Terraform
+
+After depoying the EKS and ready state we need the kubeconfig for the cluster
+
+```bash
+# Run this command to get kubeconfig for eks cluster
+aws eks --region $(terraform output -raw region) update-kubeconfig \
+--name $(terraform output -raw cluster_name)
+
+# Verify all nodes in kubernetes
+kubectl get nodes
+kubectl get ns
+kubectl get pods -A
+```
+
+### Helm Repo
+
+Add all helm repo required for (Metrics Server, Grafana, ArgoCD)
+
+```bash
+# Add Helm repo to deploy metrics-server for autoscaling
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+
+# Add Helm repo to deploy monitoring for monitoring
+helm repo add prom https://prometheus-community.github.io/helm-charts
+
+# Add Helm repo to deploy argocd for gitops
+helm repo add argo https://argoproj.github.io/argo-helm
+
+# AWS EKS Load Balancer Controller
+helm repo add eks https://aws.github.io/eks-charts
+
+# AWS EKS Kubernetes cluster autoscaler setup
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+
+helm repo update
+```
+
+```bash
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: aws-load-balancer-controller
+  namespace: kube-system
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::936379345511:role/eks-alb-role
+```
+
+Create fargate profile -> Limit namespace
+Public Subnet tag -> kubernetes.io/role/elb=1
+Private Subnet tag -> kubernetes.io/role/internal-elb=1
+
+### ALB Controller
+
+```bash
+# Setup ALB Add on in EKS -> OIDC Provider -> Create Policy -> Deploy ALB controller
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update eks
+
+helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
+--set clusterName=<your-cluster-name> \
+--set serviceAccount.create=false \
+--set serviceAccount.name=aws-load-balancer-controller \
+--set region=<your-region> \
+--set vpcId=<your-vpc-id> \
+--set ingressClass=alb
+
+# Verify the ALB controller
+kubectl get deployment -n kube-system aws-load-balancer-controller
+```
+
+### Metrics Server
+
+We need to deploy metrics-server in kubernetes to monitor pod metrics and scale according this
+
+```bash
+# Install metrics-server (release name: metrics-server)
+helm upgrade --install metrics-server metrics-server/metrics-server \
+--create-namespace metrics-server -n metrics-server -f helm-values/metrics-server-values.yaml
 ```
 
 ## Monitoring
@@ -182,16 +211,9 @@ FOLDERS:
 - helm-values/prom-values.yaml
 
 ```bash
-# Create namespace monitoring to create monitoring resources
-kubectl create ns monitoring
-
-# Add Helm repo to deploy monitoring
-helm repo add prom https://prometheus-community.github.io/helm-charts
-helm repo update
-
 # Install kube-prometheus-stack (release name: prometheus)
 helm upgrade --install prometheus prom/kube-prometheus-stack \
--n monitoring -f helm-values/prom-values.yaml
+--create-namespace monitoring -n monitoring -f helm-values/prom-values.yaml
 
 # Check monitoring resources
 helm list -n monitoring
@@ -217,16 +239,9 @@ Argo CD is a GitOps-based deployment tool for Kubernetes that continuously syncs
 ### ArgoCD Setup
 
 ```bash
-# Create namespace argo to create argocd resources
-kubectl create ns argo
-
-# Add Helm repo to deploy argocd
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-
 # Install argo-cd (release name: argocd)
 helm upgrade --install argocd argo/argo-cd \
--n argo -f helm-values/argocd-values.yaml
+--create-namespace argo -n argo -f helm-values/argocd-values.yaml
 
 # Check argocd resources
 helm list -n argo
@@ -252,4 +267,15 @@ kubectl apply -f argocd-applications/argo-stage-env.yaml
 
 # Create argocd application for prod environment
 kubectl apply -f argocd-applications/argo-prod-env.yaml
+```
+
+# Experiment
+
+Cloudwatch log and monitoring for eks
+
+First do the cloudwatch agent addon
+
+```bash
+# Check cloudwatch agent in eks
+kubectl get pods -n amazon-cloudwatch
 ```

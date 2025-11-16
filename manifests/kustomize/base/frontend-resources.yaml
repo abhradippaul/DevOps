@@ -82,16 +82,16 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              initialDelaySeconds: 5
               path: /
-              periodSeconds: 5
               port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
           readinessProbe:
             httpGet:
-              initialDelaySeconds: 5
               path: /
-              periodSeconds: 5
               port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources:
             limits:
               cpu: 40m
@@ -128,6 +128,12 @@ spec:
   minReplicas: 2
   maxReplicas: 5
   metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
     - type: Resource
       resource:
         name: memory

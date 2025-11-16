@@ -1,0 +1,9 @@
+autoDiscovery:
+  clusterName:  
+  namespace:  "kube-system"
+
+awsRegion: "ap-south-1"
+
+rbac:
+  serviceAccount:
+    name: "cluster-autoscaler"

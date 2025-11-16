@@ -6,8 +6,22 @@ namespace: stage
 resources:
   - ../../base
 
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: app-env
+    literals:
+      - ENV=STAGE
+
 images:
   - name: abhradippaul/nodejs-frontend-devops
     newTag: 0.0.1
   - name: abhradippaul/nodejs-backend-devops
     newTag: 0.0.1
+
+# images:
+#   - name: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-frontend-devops
+#     newTag: 0.0.2
+#   - name: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-backend-devops
+#     newTag: 0.0.2
