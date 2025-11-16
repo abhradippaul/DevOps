@@ -35,6 +35,17 @@ data "aws_iam_policy_document" "ecr_pull_policy_document" {
 data "aws_iam_policy_document" "ecr_push_policy_document" {
 
   statement {
+    sid    = "ECRAuthToken"
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken"
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "ECRPushAction"
     effect = "Allow"
 
