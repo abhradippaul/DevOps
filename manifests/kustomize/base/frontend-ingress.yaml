@@ -8,7 +8,8 @@ metadata:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/group.name: multi-app-group
 spec:
-  ingressClassName: alb
+  # ingressClassName: alb
+  ingressClassName: nginx
   rules:
     - host: frontend.website.com
       http:
