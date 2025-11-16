@@ -6,7 +6,7 @@ interface Item {
   name: string;
 }
 
-// const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 export function App() {
   const [isBackendHealthy, setIsBackendHealthy] = useState(false);

@@ -3,7 +3,7 @@ output "pull_user_access_key_id" {
 }
 
 output "pull_user_secret_access_key" {
-  value = aws_iam_access_key.pull_user_access_key.ses_smtp_password_v4
+  value = aws_iam_access_key.pull_user_access_key.secret
 }
 
 output "push_user_access_key_id" {
@@ -11,5 +11,5 @@ output "push_user_access_key_id" {
 }
 
 output "push_user_secret_access_key" {
-  value = aws_iam_access_key.push_user_access_key.ses_smtp_password_v4
+  value = aws_iam_access_key.push_user_access_key.secret
 }
