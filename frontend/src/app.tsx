@@ -32,7 +32,6 @@ export function App() {
         setLoading(false);
       });
     console.log(BACKEND_URL);
-    console.log(BACKEND_URL);
   }, []);
 
   const handleButtonOnClick = () => {
