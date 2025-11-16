@@ -17,20 +17,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:
           node-version: "24.x"
+
       - name: npm install, lint and build for frontend
         working-directory: frontend
         run: |
           npm ci
           npm run build
+
       - name: npm install, lint and build for backend
         working-directory: backend
         run: |
           npm ci
           npm run build
+
       - name: Extract version from commit message
         id: version
         run: |
@@ -47,53 +51,44 @@ jobs:
           CLEAN_VERSION=${VERSION#v}
 
           echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build & push frontend image
-        uses: docker/build-push-action@v6
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push frontend docker image to Amazon ECR
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            abhradippaul/nodejs-frontend-devops:${{ steps.version.outputs.version }}
-            abhradippaul/nodejs-frontend-devops:latest
-      - name: Build & push backend image
-        uses: docker/build-push-action@v6
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ secrets.ECR_FRONTEND_REPO }}
+          IMAGE_TAG: ${{ steps.version.outputs.version }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Build, tag, and push backend docker image to Amazon ECR
         with:
           context: ./backend
           file: ./backend/Dockerfile
-          push: true
-          tags: |
-            abhradippaul/nodejs-backend-devops:${{ steps.version.outputs.version }}
-            abhradippaul/nodejs-backend-devops:latest
-      - name: Extract old dev version for staging
-        id: olddev
-        run: |
-          OLD_DEV=$(grep -oE "newTag: [0-9]+\.[0-9]+\.[0-9]+" manifests/kustomize/overlays/dev/kustomization.yaml | head -1 | awk '{print $2}')
-          echo "old=$OLD_DEV" >> $GITHUB_OUTPUT
-      - name: Update image tag for staging
-        run: |
-          sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.olddev.outputs.old }}/g" manifests/kustomize/overlays/stage/kustomization.yaml
-      - name: Update image tag for dev
-        run: |
-          sed -i "s/newTag: [0-9]\+\.[0-9]\+\.[0-9]\+/newTag: ${{ steps.version.outputs.version }}/g" manifests/kustomize/overlays/dev/kustomization.yaml
-      - name: Update GitOps repository
         env:
-          GIT_TOKEN: ${{ secrets.GITOPS_PAT }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ secrets.ECR_BACKEND_REPO }}
+          IMAGE_TAG: ${{ steps.version.outputs.version }}
         run: |
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add manifests/kustomize/overlays
-          git commit -m "Update image for gitops version:${{ steps.version.outputs.version }}"
-
-          git push origin main
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
