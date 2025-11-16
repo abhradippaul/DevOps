@@ -79,9 +79,6 @@ jobs:
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Build, tag, and push backend docker image to Amazon ECR
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ secrets.ECR_BACKEND_REPO }}
