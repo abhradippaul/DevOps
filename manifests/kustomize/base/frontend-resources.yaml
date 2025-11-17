@@ -74,7 +74,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: frontend
-          image: "abhradippaul/nodejs-frontend-devops:1.16.0"
+          image: ":1.16.0"
           imagePullPolicy: Always
           ports:
             - name: http

@@ -1,7 +1,6 @@
 replicaCount: 2
 
 image:
-  repository: abhradippaul/nodejs-frontend-devops
   pullPolicy: Always
 
 serviceAccount:

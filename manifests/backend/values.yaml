@@ -1,7 +1,6 @@
 replicaCount: 2
 
 image:
-  repository: abhradippaul/nodejs-backend-devops
   pullPolicy: Always
 
 serviceAccount:

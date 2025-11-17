@@ -238,7 +238,7 @@ Argo CD is a GitOps-based deployment tool for Kubernetes that continuously syncs
 ```bash
 # Install argo-cd (release name: argocd)
 helm upgrade --install argocd argo/argo-cd \
---create-namespace -n argo -f helm-values/argocd-values.yaml
+--create-namespace -n argocd -f helm-values/argocd-values.yaml
 
 # Check argocd resources
 helm list -n argo
@@ -257,13 +257,13 @@ We create three ArgoCD Applications Dev, Stage, and Prod environments. ArgoCD co
 
 ```bash
 # Create argocd application for dev environment
-kubectl apply -f argocd-applications/argo-dev-env.yaml
+kubectl apply -f argocd-applications/argo-dev.yaml
 
 # Create argocd application for stage environment
-kubectl apply -f argocd-applications/argo-stage-env.yaml
+kubectl apply -f argocd-applications/argo-stage.yaml
 
 # Create argocd application for prod environment
-kubectl apply -f argocd-applications/argo-prod-env.yaml
+kubectl apply -f argocd-applications/argo-prod.yaml
 ```
 
 # Experiment
