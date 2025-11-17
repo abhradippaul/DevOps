@@ -121,7 +121,7 @@ export function App() {
 
           {!loading && !error && !Boolean(data.length) && (
             <p className="text-gray-400 text-center mt-6">
-              No data fetched yet. Click the button above 👆
+              No data fetched yet. Click the button above
             </p>
           )}
         </div>

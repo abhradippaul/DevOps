@@ -26,6 +26,7 @@ app.get("/", async (req, res) => {
   if (!isJokesExist) {
     await setValueInRedis("jokes", JSON.stringify(jokes));
   }
+  console.log("From Redis Database");
   res.status(200).json({ msg: "Welcome to backend", env: ENV });
 });
 
@@ -34,6 +35,7 @@ app.get("/api", async (req, res) => {
   if (!isJokesExist) {
     await setValueInRedis("jokes", JSON.stringify(jokes));
   }
+  console.log("From Redis Database");
   res.status(200).json({ msg: "Server is running", env: ENV });
 });
 
