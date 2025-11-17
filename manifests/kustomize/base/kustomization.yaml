@@ -20,4 +20,3 @@ resources:
   - backend-resources.yaml
   - frontend-resources.yaml
   - redis-resources.yaml
-  - frontend-ingress.yaml

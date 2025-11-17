@@ -1,7 +1,11 @@
-output "private_subnets" {
-  value = aws_subnet.eks_subnet_private[*].id
+output "vpc_id" {
+  value = module.vpc.vpc_id
 }
 
-output "public_subnets" {
-  value = aws_subnet.eks_subnet_public[*].id
+output "private_subnet_ids" {
+  value = module.vpc.private_subnets
+}
+
+output "security_group_id" {
+  value = aws_security_group.all_worker_mgmt.id
 }

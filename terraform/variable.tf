@@ -8,6 +8,14 @@ variable "ecr_name" {
   default = ["abhradippaul/nodejs-frontend-devops", "abhradippaul/nodejs-backend-devops"]
 }
 
+variable "aws_region" {
+  default = "ap-south-1"
+}
+
+variable "eks_cluster_name" {
+  default = "eks-devops-project"
+}
+
 variable "vpc_cidr" {
   type    = string
   default = "10.0.0.0/16"
@@ -22,7 +30,7 @@ variable "public_subnet_cidrs" {
 variable "private_subnet_cidrs" {
   description = "CIDRs for private subnets"
   type        = list(string)
-  default     = ["10.0.11.0/24", "10.0.12.0/24"]
+  default     = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
 variable "az_zones" {

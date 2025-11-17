@@ -3,7 +3,7 @@ name: Node CI/CD Pipeline
 on:
   push:
     branches: ["main"]
-    # paths: ["frontend/**", "backend/**", ".github/**"]
+    paths: ["frontend/**", "backend/**", ".github/**"]
   pull_request:
     branches: ["main"]
     paths: ["frontend/**", "backend/**", ".github/**"]

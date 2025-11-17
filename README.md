@@ -60,6 +60,7 @@ Components:
 - IAM
 - ECR
 - EKS
+- VPC
 
 ```bash
 # To check terraform plan
@@ -127,8 +128,18 @@ After depoying the EKS and ready state we need the kubeconfig for the cluster
 
 ```bash
 # Run this command to get kubeconfig for eks cluster
-aws eks --region $(terraform output -raw region) update-kubeconfig \
---name $(terraform output -raw cluster_name)
+aws eks --region ap-south-1 update-kubeconfig --name eks-devops-project
+
+eksctl utils associate-iam-oidc-provider --region=ap-south-1 --cluster=eks-devops-project --approve
+
+eksctl delete iamserviceaccount --name=aws-load-balancer-controller --cluster=eks-devops-project --namespace kube-system
+
+eksctl create iamserviceaccount \
+--cluster eks-devops-project \
+--namespace kube-system \
+--name aws-load-balancer-controller \
+--attach-policy-arn arn:aws:iam::739275445912:policy/AWSLoadBalancerController \
+--approve
 
 # Verify all nodes in kubernetes
 kubectl get nodes
@@ -159,16 +170,6 @@ helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm repo update
 ```
 
-```bash
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: aws-load-balancer-controller
-  namespace: kube-system
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::936379345511:role/eks-alb-role
-```
-
 Create fargate profile -> Limit namespace
 Public Subnet tag -> kubernetes.io/role/elb=1
 Private Subnet tag -> kubernetes.io/role/internal-elb=1
@@ -177,16 +178,12 @@ Private Subnet tag -> kubernetes.io/role/internal-elb=1
 
 ```bash
 # Setup ALB Add on in EKS -> OIDC Provider -> Create Policy -> Deploy ALB controller
-helm repo add eks https://aws.github.io/eks-charts
-helm repo update eks
 
 helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
---set clusterName=<your-cluster-name> \
+--set clusterName=eks-devops-project \
 --set serviceAccount.create=false \
 --set serviceAccount.name=aws-load-balancer-controller \
---set region=<your-region> \
---set vpcId=<your-vpc-id> \
---set ingressClass=alb
+--set vpcId=vpc-002a3d6c4e527bfe7
 
 # Verify the ALB controller
 kubectl get deployment -n kube-system aws-load-balancer-controller
@@ -276,6 +273,10 @@ Cloudwatch log and monitoring for eks
 First do the cloudwatch agent addon
 
 ```bash
+helm upgrade --install aws-cloudwatch-metrics \
+-n amazon-cloudwatch --create-namespace eks/aws-cloudwatch-metrics \
+--set clusterName=eks-devops
+
 # Check cloudwatch agent in eks
 kubectl get pods -n amazon-cloudwatch
 ```

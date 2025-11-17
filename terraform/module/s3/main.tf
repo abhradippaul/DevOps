@@ -1,3 +1,4 @@
+# Create S3 Bucket
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
   tags = {
@@ -6,6 +7,7 @@ resource "aws_s3_bucket" "bucket" {
   force_destroy = true
 }
 
+# Enable Public access for the Bucket
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.bucket.id
 
@@ -15,6 +17,7 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = false
 }
 
+# Upload Static Image to the Bucket
 resource "aws_s3_object" "static_content" {
   bucket       = aws_s3_bucket.bucket.id
   key          = "/image/image1.jpg"
@@ -23,6 +26,7 @@ resource "aws_s3_object" "static_content" {
   depends_on   = [aws_s3_bucket_policy.allow_public_access]
 }
 
+# Get Bucket policy for Public Access
 data "aws_iam_policy_document" "iam_allow_public_access" {
   statement {
     sid    = "AllowPublicAcess"
@@ -42,6 +46,7 @@ data "aws_iam_policy_document" "iam_allow_public_access" {
   }
 }
 
+# Assign the Bucket Policy
 resource "aws_s3_bucket_policy" "allow_public_access" {
   bucket = aws_s3_bucket.bucket.id
   policy = data.aws_iam_policy_document.iam_allow_public_access.json
