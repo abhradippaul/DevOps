@@ -50,14 +50,14 @@ module "github_actions_iam" {
 }
 
 # Create VPC for EKS
-# module "eks_vpc" {
-#   source               = "./module/vpc"
-#   az_zones             = var.az_zones
-#   private_subnet_cidrs = var.private_subnet_cidrs
-#   public_subnet_cidrs  = var.public_subnet_cidrs
-#   vpc_cidr             = var.vpc_cidr
-#   vpc_name             = "eks_vpc"
-# }
+module "eks_vpc" {
+  source               = "./module/vpc"
+  az_zones             = var.az_zones
+  private_subnet_cidrs = var.private_subnet_cidrs
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  vpc_cidr             = var.vpc_cidr
+  vpc_name             = "eks_vpc"
+}
 
 # Create EKS Cluster
 # module "eks" {

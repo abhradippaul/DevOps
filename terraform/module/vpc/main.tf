@@ -44,20 +44,20 @@ resource "aws_subnet" "eks_subnet_private" {
   }
 }
 
-resource "aws_eip" "nat_elastic_ip" {
-  tags = {
-    "Name" = "nat_elastic_ip"
-  }
-}
+# resource "aws_eip" "nat_elastic_ip" {
+#   tags = {
+#     "Name" = "nat_elastic_ip"
+#   }
+# }
 
-resource "aws_nat_gateway" "nat_private_ec2" {
-  depends_on    = [aws_eip.nat_elastic_ip]
-  allocation_id = aws_eip.nat_elastic_ip.id
-  subnet_id     = aws_subnet.demo-subnet-public[0].id
-  tags = {
-    "Name" = "nat_private_ec2"
-  }
-}
+# resource "aws_nat_gateway" "nat_private_ec2" {
+#   depends_on    = [aws_eip.nat_elastic_ip]
+#   allocation_id = aws_eip.nat_elastic_ip.id
+#   subnet_id     = aws_subnet.demo-subnet-public[0].id
+#   tags = {
+#     "Name" = "nat_private_ec2"
+#   }
+# }
 
 resource "aws_route_table" "eks_private_route_table" {
   vpc_id = aws_vpc.eks_vpc.id
