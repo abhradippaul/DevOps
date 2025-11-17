@@ -2,22 +2,22 @@ output "bucket_dns" {
   value = module.bucket.s3_domain_name
 }
 
-# output "frontend_ecr_url" {
-#   value = aws_ecr_repository.frontend_ecr.repository_url
-# }
+output "frontend_ecr_url" {
+  value = aws_ecr_repository.frontend_ecr.repository_url
+}
 
-# output "backend_ecr_url" {
-#   value = aws_ecr_repository.backend_ecr.repository_url
-# }
+output "backend_ecr_url" {
+  value = aws_ecr_repository.backend_ecr.repository_url
+}
 
-# output "push_user_access_key_id" {
-#   value = module.github_actions_iam.push_user_access_key_id
-# }
+output "push_user_access_key_id" {
+  value = module.github_actions_iam.push_user_access_key_id
+}
 
-# output "push_user_secret_access_key" {
-#   value     = module.github_actions_iam.push_user_secret_access_key
-#   sensitive = true
-# }
+output "push_user_secret_access_key" {
+  value     = module.github_actions_iam.push_user_secret_access_key
+  sensitive = true
+}
 
 # output "cluster_endpoint" {
 #   description = "Endpoint for EKS control plane"

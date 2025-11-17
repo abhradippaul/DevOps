@@ -86,6 +86,9 @@ data "aws_iam_policy_document" "eks_cluster_autoscaler_policy_document" {
       "sts:AssumeRole", "sts:TagSession"
     ]
   }
+}
+
+data "aws_iam_policy_document" "eks_cluster_autoscaler_document" {
   statement {
     effect = "Allow"
 
@@ -105,10 +108,7 @@ data "aws_iam_policy_document" "eks_cluster_autoscaler_policy_document" {
   }
   statement {
     effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
+
     actions = [
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup"
@@ -119,8 +119,10 @@ data "aws_iam_policy_document" "eks_cluster_autoscaler_policy_document" {
   }
 }
 
+
+
 resource "aws_iam_policy" "cluster_autoscaler_policy" {
-  policy = data.aws_iam_policy_document.eks_cluster_autoscaler_policy_document.json
+  policy = data.aws_iam_policy_document.eks_cluster_autoscaler_document.json
   name   = "${var.eks_cluster_name}-cluster_autoscaler_policy"
 }
 
@@ -159,6 +161,6 @@ resource "aws_iam_policy" "aws_lbc_policy" {
 
 resource "aws_iam_role_policy_attachment" "aws_lbc_policy_attachment" {
   policy_arn = aws_iam_policy.aws_lbc_policy.arn
-  role       = aws_iam_role.cluster_autoscaler_role.name
+  role       = aws_iam_role.aws_lbc_role.name
 }
 
