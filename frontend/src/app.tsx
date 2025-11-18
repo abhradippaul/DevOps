@@ -89,7 +89,7 @@ export function App() {
           <h2 className="text-xl font-semibold text-gray-300">
             Environment: {env.toUpperCase()}
           </h2>
-          <h2>New Feature</h2>
+          <h2>Error</h2>
           <button
             onClick={handleButtonOnClick}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg border border-blue-700 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all duration-200"
