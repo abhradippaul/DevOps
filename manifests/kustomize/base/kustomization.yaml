@@ -12,11 +12,11 @@ secretGenerator:
     literals:
       - REDIS_URL="redis://abhra:1234@redis-service:6379"
 
-patches:
-  - path: patch-frontend.yaml
-  - path: patch-backend.yaml
-
 resources:
   - backend-resources.yaml
   - frontend-resources.yaml
   - redis-resources.yaml
+
+patches:
+  - path: patch-frontend.yaml
+  - path: patch-backend.yaml

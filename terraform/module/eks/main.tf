@@ -113,9 +113,9 @@ resource "aws_eks_node_group" "general" {
   instance_types = ["t3.large"]
 
   scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 2
+    desired_size = 1
+    max_size     = 1
+    min_size     = 1
   }
 
   update_config {
@@ -269,10 +269,10 @@ resource "aws_eks_addon" "amazon_cloudwatch_observability" {
 }
 
 # Creates LogGroup to push the logs to CloudWatch
-# resource "aws_cloudwatch_log_group" "eks_control_plane" {
-#   name              = "/aws/eks/${var.eks_cluster_name}/cluster"
-#   retention_in_days = 7
-#   lifecycle {
-#     create_before_destroy = false
-#   }
-# }
+resource "aws_cloudwatch_log_group" "eks_control_plane" {
+  name              = "/aws/eks/${var.eks_cluster_name}/cluster"
+  retention_in_days = 7
+  lifecycle {
+    create_before_destroy = false
+  }
+}

@@ -3,10 +3,10 @@ locals {
   eks_version = "1.33"
 }
 
-module "bucket" {
-  source      = "./module/s3"
-  bucket_name = var.bucket_name
-}
+# module "bucket" {
+#   source      = "./module/s3"
+#   bucket_name = var.bucket_name
+# }
 
 # ECR resource for storing frontend image
 resource "aws_ecr_repository" "frontend_ecr" {
@@ -49,7 +49,7 @@ module "eks_vpc" {
   azs                  = var.az_zones
 }
 
-# Create EKS Cluster
+# # Create EKS Cluster
 module "eks" {
   source            = "./module/eks"
   eks_cluster_name  = var.eks_cluster_name

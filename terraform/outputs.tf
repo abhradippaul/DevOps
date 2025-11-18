@@ -1,6 +1,6 @@
-output "bucket_dns" {
-  value = module.bucket.s3_domain_name
-}
+# output "bucket_dns" {
+#   value = module.bucket.s3_domain_name
+# }
 
 output "frontend_ecr_url" {
   value = aws_ecr_repository.frontend_ecr.repository_url
@@ -29,9 +29,9 @@ output "push_user_secret_access_key" {
 #   value       = module.eks.cluster_name
 # }
 
-output "vpc_id" {
-  value = module.eks_vpc.vpc_id
-}
+# output "vpc_id" {
+#   value = module.eks_vpc.vpc_id
+# }
 
 # output "security_group_id" {
 #   value = module.eks_vpc.security_group_id

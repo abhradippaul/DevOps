@@ -1,5 +1,16 @@
 # DevOps
 
+WORKFLOW:
+
+- Changes in frontend/backend folder
+- Git Commit and Push to GitHub
+- Triggers GitHub Actions
+- Test and Build the image
+- Push to ECR with new image tag
+- Change tag version in kubernetes yaml file
+- Triggers ArgoCD
+- ArgoCD will redeploy the application with new image
+
 ## Application
 
 Components:
@@ -123,6 +134,7 @@ Components:
 - Kubectl
 - ALB Add On
 - Terraform
+- eksctls
 
 After depoying the EKS and ready state we need the kubeconfig for the cluster
 
@@ -130,10 +142,13 @@ After depoying the EKS and ready state we need the kubeconfig for the cluster
 # Run this command to get kubeconfig for eks cluster
 aws eks --region ap-south-1 update-kubeconfig --name eks-devops-project
 
+# Add the IAM OIDC Provider to the cluster
 eksctl utils associate-iam-oidc-provider --region=ap-south-1 --cluster=eks-devops-project --approve
 
+# Delete the service account if exists
 eksctl delete iamserviceaccount --name=aws-load-balancer-controller --cluster=eks-devops-project --namespace kube-system
 
+# Create new service account for AWSLoadBalancerController
 eksctl create iamserviceaccount \
 --cluster eks-devops-project \
 --namespace kube-system \
@@ -170,20 +185,16 @@ helm repo add autoscaler https://kubernetes.github.io/autoscaler
 helm repo update
 ```
 
-Create fargate profile -> Limit namespace
-Public Subnet tag -> kubernetes.io/role/elb=1
-Private Subnet tag -> kubernetes.io/role/internal-elb=1
-
 ### ALB Controller
 
 ```bash
-# Setup ALB Add on in EKS -> OIDC Provider -> Create Policy -> Deploy ALB controller
+# Setup ALB controller to provision LoadBalancer
 
 helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
 --set clusterName=eks-devops-project \
 --set serviceAccount.create=false \
 --set serviceAccount.name=aws-load-balancer-controller \
---set vpcId=vpc-002a3d6c4e527bfe7
+--set vpcId=vpc-0e9d56a2d5f908634
 
 # Verify the ALB controller
 kubectl get deployment -n kube-system aws-load-balancer-controller
@@ -266,17 +277,29 @@ kubectl apply -f argocd-applications/argo-stage.yaml
 kubectl apply -f argocd-applications/argo-prod.yaml
 ```
 
-# Experiment
+### CloudWatch Agent
 
-Cloudwatch log and monitoring for eks
-
-First do the cloudwatch agent addon
+Using CloudWatch Agent we can export logs and metrics to CloudWatch
 
 ```bash
-helm upgrade --install aws-cloudwatch-metrics \
--n amazon-cloudwatch --create-namespace eks/aws-cloudwatch-metrics \
---set clusterName=eks-devops
-
 # Check cloudwatch agent in eks
 kubectl get pods -n amazon-cloudwatch
 ```
+
+## GitHub Actions
+
+Using GitHub Actions we can run the CI/CD on every commit on main branch if the application source code changes
+Here are the steps for GitHub Actions.
+
+- Checkout repository code.
+- Extract version from commit message.
+- Set up Node.js.
+- Build frontend (install, lint, build).
+- Build backend (install, lint, build).
+- Set up QEMU and Buildx for Docker.
+- Configure AWS credentials and log in to ECR.
+- Build and push frontend Docker image.
+- Build and push backend Docker image.
+- Read previous dev image version.
+- Update staging image tag.
+- Update dev image tag.
