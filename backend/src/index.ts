@@ -55,5 +55,4 @@ app.listen(PORT, async () => {
   console.log("Server connected successfully on port no", PORT);
   await client.connect();
   console.log("Connected to Redis");
-  console.log("Connected to Redis");
 });
