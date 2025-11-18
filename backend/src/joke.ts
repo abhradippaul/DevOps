@@ -1,5 +1,9 @@
 export const jokes = [
   {
+    id: 0,
+    name: "Abhradip Paul",
+  },
+  {
     id: 1,
     name: "Why did the developer go broke? Because he used up all his cache.",
   },
