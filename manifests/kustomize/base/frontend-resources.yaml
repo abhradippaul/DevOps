@@ -74,7 +74,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: frontend
-          image: "739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-backend-devops:1.16.0"
+          image: "739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-frontend-devops:1.16.0"
           imagePullPolicy: Always
           ports:
             - name: http

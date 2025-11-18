@@ -106,17 +106,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
----
-# Source: backend/templates/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: backend-app
-  labels:
-    helm.sh/chart: backend-0.1.0
-    app.kubernetes.io/name: backend
-    app.kubernetes.io/instance: backend-app
-    app.kubernetes.io/version: "1.16.0"
-    app.kubernetes.io/managed-by: Helm
-spec:
-  rules:
