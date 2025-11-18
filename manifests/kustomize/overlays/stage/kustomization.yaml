@@ -16,6 +16,6 @@ configMapGenerator:
 
 images:
   - name: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-frontend-devops
-    newTag: 0.0.6
+    newTag: 0.0.7
   - name: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-backend-devops
-    newTag: 0.0.6
+    newTag: 0.0.7
