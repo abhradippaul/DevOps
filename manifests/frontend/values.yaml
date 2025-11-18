@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-backend-devops
+  repository: 739275445912.dkr.ecr.ap-south-1.amazonaws.com/abhradippaul/nodejs-frontend-devops
   pullPolicy: Always
 
 serviceAccount:

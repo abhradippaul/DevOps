@@ -256,7 +256,7 @@ helm list -n argo
 kubectl get all -n argo
 
 # Get secret to access the dashboard
-kubectl get secret -n argo argocd-initial-admin-secret \
+kubectl get secret -n argocd argocd-initial-admin-secret \
 -ojsonpath={.data.password} | base64 -d
 ```
 
